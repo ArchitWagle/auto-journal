@@ -20,7 +20,6 @@ for line in f:
     line = line.rstrip().lower()
     im_v = hw_dict[ord(line[0])-97].copy()
     for x in line[1::]:
-        print(x)
         if(ord(x)==32):
             space = np.zeros([im_v.shape[0],hw_dict[0].shape[1]],dtype=np.uint8)
             space.fill(255)
