@@ -10,7 +10,7 @@ def save_obj(obj, name ):
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
-fn = 'images/sample.jpeg'
+fn = 'images/sample2.jpeg'
 imgray = cv2.imread(fn, cv2.IMREAD_GRAYSCALE)
 
 cv2.namedWindow('image')
@@ -103,9 +103,9 @@ def apply_segmentation(img,T, save):
                 active = True
     
     # display boxes in image             
-    for x in character_class_BR:
-        cv2.rectangle(img, pt1=(0,x[0]), pt2=(img.shape[1],x[1]),color=(0,255,255),thickness=2)    
-        cv2.putText(img,captions[character_class_BR.index(x)],(0,x[0]), font, 1,(0,255,255),2,cv2.LINE_AA)
+    #for x in character_class_BR:
+    #    cv2.rectangle(img, pt1=(0,x[0]), pt2=(img.shape[1],x[1]),color=(0,255,255),thickness=2)    
+    #    cv2.putText(img,captions[character_class_BR.index(x)],(0,x[0]), font, 1,(0,255,255),2,cv2.LINE_AA)
     
     # iterate over all character classes to segment them separately
     for x in range(len(character_class_BR)):
@@ -142,12 +142,20 @@ def apply_segmentation(img,T, save):
         
         for i in range(len(ans)):
             temp = ans[i]
-            cv2.rectangle(img, pt1=(temp[0][1],temp[0][0]), pt2=(temp[1][1],temp[1][0]),color=(0,255,255),thickness=1)         
+            #cv2.rectangle(img, pt1=(temp[0][1],temp[0][0]), pt2=(temp[1][1],temp[1][0]),color=(0,255,255),thickness=1)         
             
             if save :           
                 
-                storage_dict[x][i]=  process_characters(x, i , T,img_backup[temp[0][1]:temp[1][1]+1,temp[0][0]:temp[1][0]+1])
-            
+                storage_dict[x][i]=  process_characters(x, i , T,img_backup[temp[0][0]:temp[1][0]+1,temp[0][1]:temp[1][1]+1])
+
+                while True:
+                    #print(temp[0][1],temp[1][1]+1,temp[0][0],temp[1][0]+1)
+                    #cv2.imshow('image', img_backup[temp[0][0]:temp[1][0]+1, temp[0][1]:temp[1][1]+1])
+                    cv2.imshow('image', storage_dict[x][i])
+                    if cv2.waitKey(10) == 27:
+                        break
+            else:
+                cv2.rectangle(img, pt1=(temp[0][1],temp[0][0]), pt2=(temp[1][1],temp[1][0]),color=(0,255,255),thickness=1)  
     if save:
         save_obj(storage_dict,"storage_dict")
         return

@@ -9,7 +9,7 @@ def load_obj(name ):
         return pickle.load(f)
         
         
-hw_dict= load_obj("handwriting_dict")
+hw_dict= load_obj("storage_dict")[0]
 
 f = open("input.txt", "r")
 print(len(hw_dict))
@@ -21,11 +21,18 @@ for line in f:
     im_v = hw_dict[ord(line[0])-97].copy()
     for x in line[1::]:
         if(ord(x)==32):
+            prev =   im_v.shape[1]
             space = np.zeros([im_v.shape[0],hw_dict[0].shape[1]],dtype=np.uint8)
             space.fill(255)
             im_v = cv2.hconcat([im_v,space])
-        elif(ord(x)>=97 and ord(x)<=122):    
+            for j in range(im_v.shape[0]):
+                im_v[j,prev-1] = 255
+        elif(ord(x)>=97 and ord(x)<=122):  
+            prev =   im_v.shape[1]
             im_v = cv2.hconcat([im_v,    cv2.resize(hw_dict[ord(x)-97], (hw_dict[ord(x)-97].shape[1], im_v.shape[0]))  ])
+            
+            for j in range(im_v.shape[0]):
+                im_v[j,prev-1] = 255
     ans.append(im_v)
     if(im_v.shape[1]>max_len):
         max_len = im_v.shape[1]
