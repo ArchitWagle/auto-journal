@@ -1,6 +1,167 @@
-If we get successful in this demand....then it will make a big impact as more students will then
-enroll by spring and if more students enroll then major  courses which are often available in fall bcoz
-of big batch size will also be available for spring
-ab
-b
-c
+Q4. Short Note on Multithreading
+Multithreading allows the execution of multiple parts of a program at the same time.
+These parts are known as threads and are lightweight processes available within the
+process. Therefore, multithreading leads to maximum utilization of the CPU by
+multitasking.
+The main models for multithreading are one to one model, many to one model and
+many to many model. Details about these are given as follows:
+One to One Model
+The one to one model maps each of the user threads to a kernel thread. This means
+that many threads can run in parallel on multiprocessors and other threads can run
+when one thread makes a blocking system call.
+A disadvantage of the one to one model is that the creation of a user thread requires a
+corresponding kernel thread. Since a lot of kernel threads burden the system, there is
+restriction on the number of threads in the system.A diagram that demonstrates the one to one model is given as follows:
+Many to One Model
+The many to one model maps many of the user threads to a single kernel thread. This
+model is quite efficient as the user space manages the thread management.
+A disadvantage of the many to one model is that a thread blocking system call blocks
+the entire process. Also, multiple threads cannot run in parallel as only one thread can
+access the kernel at a time.
+A diagram that demonstrates the many to one model is given as follows:Many to Many Model
+The many to many model maps many of the user threads to a equal number or lesser
+kernel threads. The number of kernel threads depends on the application or machine.
+The many to many does not have the disadvantages of the one to one model or the
+many to one model. There can be as many user threads as required and their
+corresponding kernel threads can run in parallel on a multiprocessor.
+A diagram that demonstrates the many to many model is given as follows:
+Increased Complexity − Multithreaded processes are quite complicated. Coding
+for these can only be handled by expert programmers.
+Complications due to Concurrency − It is difficult to handle concurrency in
+multithreaded processes. This may lead to complications and future problems.
+Difficult to Identify Errors− Identification and correction of errors is much more
+difficult in multithreaded processes as compared to single threaded processes.
+Testing Complications− Testing is a complicated process i multithreaded
+programs as compared to single threaded programs. This is because defects can
+be timing related and not easy to identify.
+Unpredictable results− Multithreaded programs can sometimes lead to
+unpredictable results as they are essentially multiple parts of a program that are
+running at the same time.
+Complications for Porting Existing Code − A lot of testing is required for
+porting existing code in multithreading. Static variables need to be removed and
+any code or function calls that are not thread safe need to be replaced.Design issues:
+Increased Complexity − Multithreaded processes are quite complicated. Coding
+for these can only be handled by expert programmers.
+Complications due to Concurrency − It is difficult to handle concurrency in
+multithreaded processes. This may lead to complications and future problems.
+Difficult to Identify Errors− Identification and correction of errors is much more
+difficult in multithreaded processes as compared to single threaded processes.
+Testing Complications− Testing is a complicated process i multithreaded
+programs as compared to single threaded programs. This is because defects can
+be timing related and not easy to identify.
+Unpredictable results− Multithreaded programs can sometimes lead to
+unpredictable results as they are essentially multiple parts of a program that are
+running at the same time.
+Complications for Porting Existing Code − A lot of testing is required for
+porting existing code in multithreading. Static variables need to be removed and
+any code or function calls that are not thread safe need to be replaced.
+Implementation Approaches:
+User-Space Threads
+User-space avoids the kernel and manages the tables itself. Often this is called
+"cooperative multitasking" where the task defines a set of routines that get "switched to"
+by manipulating the stack pointer. Typically each thread "gives-up" the CPU by calling
+an explicit switch, sending a signal or doing an operation that involves the switcher.
+Also, a timer signal can force switches. User threads typically can switch faster than
+kernel threads [however, Linux kernel threads' switching is actually pretty close in
+performance].
+Disadvantages. User-space threads have a problem that a single thread can
+monopolize the timeslice thus starving the other threads within the task. Also, it has no
+way of taking advantage of SMPs (Symmetric MultiProcessor systems, e.g. dual-/quad-
+Pentiums). Lastly, when a thread becomes I/O blocked, all other threads within the task
+lose the timeslice as well.
+Solutions/work arounds. Some user-thread libraries have addressed these problems
+with several work-arounds. First timeslice monopolization can be controlled with an
+external monitor that uses its own clock tick. Second, some SMPs can support user-
+space multithreading by firing up tasks on specified CPUs then starting the threads from
+there [this form of SMP threading seems tenuous, at best]. Third, some libraries solve
+the I/O blocking problem with special wrappers over system calls, or the task can be
+written for nonblocking I/O.Kernel-Space Threads
+Kernel-space threads often are implemented in the kernel using several tables (each
+task gets a table of threads). In this case, the kernel schedules each thread within the
+timeslice of each process. There is a little more overhead with mode switching from
+user->kernel-> user and loading of larger contexts, but initial performance measures
+indicate a negligible increase in time.
+Advantages. Since the clocktick will determine the switching times, a task is less likely
+to hog the timeslice from the other threads within the task. Also I/O blocking is not a
+problem. Lastly, if properly coded, the process automatically can take advantage of
+SMPs and will run incrementally faster with each added CPU.
+Q5. Explain Reliable Group Communication
+The design of the group communication mechanism should be general and not
+dependent on specific characteristics of the group or functions available from the
+underlying depending network.For example the group membership list may be static or
+dynamic depending on whether their membership list may change. Consider the case
+where the underlying hardware supports only a single-destination message transport
+mechanism (unicast). In this case, delivery of a message to the group can be achieved
+only by maintaining the list of members in the group, and sending the message to
+individual members using one-to-one IPCs. However if the underlying hardware
+supports broadcast and multicast then group can subscribe to a particular multicast
+address. A the members of a message intended for the group can be sent to this
+address and only those hosts where one or more members of this group reside will read
+the message. Broadcast networks such as Ethernet gives the impression that they
+provide reliable delivery in the hardware; but in reality they do not. Messages
+transmitted in these networks are available to all the receivers, but some or all of the
+receivers may lose messages. Some examples of how this may happen are given
+below:
+1. The buffer memory might be full when a message arrives at the interface unit.
+2.The interface unit might not be monitoring the network at the time the message is
+delivered.
+3. In a contention network, an undetected collision that affects only certain network
+interface units could cause them to miss a message.
+Unlike the retransmit reliable the transport message of packet the until unicast the
+packet receiver where the acknowledges, support reliable transport of multicast packets
+unless the number the group members message are known. If the membership
+multicast to the members acknowledgements in a are not received list sender can it is
+hard to and identity of is maintained, then the datagram within a fashion fixed first time
+and interval be sent the message again on a one-to-one basis.Q6. How the state of distributed 
+system can be recorded and recovered by
+checkpoint and message logging?
+Message logging and checkpointing can provide fault tolerance in distributed
+systems in which all process communication is through messages.
+Checkpointing in distributed systems
+In the distributed computing environment, checkpointing is a technique that helps
+tolerate failures that otherwise would force long-running application to restart from the
+beginning. The most basic way to implement checkpointing, is to stop the application,
+copy all the required data from the memory to reliable storage (e.g., parallel file system)
+and then continue with the execution. In case of failure, when the application restarts, it
+does not need to start from scratch. Rather, it will read the latest state ("the checkpoint")
+from the stable storage and execute from that. While there is ongoing debate on
+whether checkpointing is the dominating I/O workload on distributed computing
+systems, there is general consensus that checkpointing is one of the major I/O
+workloads.
+There are two main approaches for checkpointing in the distributed computing systems:
+coordinated checkpointing and uncoordinated checkpointing. In the coordinated
+checkpointing approach, processes must ensure that their checkpoints are consistent.
+This is usually achieved by some kind of two-phase commit protocol algorithm. In the
+uncoordinated checkpointing, each process checkpoints its own state independently. It
+must be stressed that simply forcing processes to checkpoint their state at fixed time
+intervals is not sufficient to ensure global consistency. The need for establishing a
+consistent state (i.e., no missing messages or duplicated messages) may force other
+processes to roll back to their checkpoints, which in turn may cause other processes to
+roll back to even earlier checkpoints, which in the most extreme case may mean that
+the only consistent state found is the initial state (the so-called domino effect).
+Let's assume that one system fails and is restored to a previous state (this is called a
+rollback). From this point, it will charge forward and repeat those things that it had done
+between this previous state and the time of the failure. This includes messages that it
+may have sent to other systems. These repeated messages are known as duplicate
+messages. It is also the case that after a rollback other systems may have received
+messages that the revovering system doesn't "remember" sending. These messages
+are known as orphan messages.
+The other systems must be able to tolerate the duplicate messages, such as might be
+the case for idempotent operations, or detect them and discard them. If they are unable
+to do this, the other systems must also rollback to a prior state. The rollback of more
+systems might compound the problem, since the rollback may orphan more messages
+and the progress might cause more duplicates. When the rollback of one system
+causes another system to rollback, this is known as cascading rollbacks. Eventually the
+systems will reach a state where they can move forward together. This state is known
+as a recovery line. After a failure, cooperating systems must rollback to a recovery line.
+Another problem involves the interaction of the system with the real-world. After a
+rollback, a system may duplicate output, or request the same input again. This is called
+studdering.
+One approach to checkpointing is to have each system periodically record its state.
+Even if all processors make checkpoints at the same frequency, there is no guarantee
+that the most recent checkpoints across all systems will be consistent. Among other
+things, clock drift implies that the checkpoints won't necessarily be made at exactly the
+same time. If checkpointing is a low-priority background task, it might also be the case
+that the checkpoints across the systems won't necessarily be consistent, because the
+systems may have cycles to burn at different times or with a completely different
+frequency.
