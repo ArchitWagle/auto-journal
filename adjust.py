@@ -13,7 +13,7 @@ def save_obj(obj, name ):
 
 # read the sample file
 storage_dict = []
-fn = 'images/sample_nil.jpeg'
+fn = 'images/sample_r.jpeg'
 imgray = cv2.imread(fn, cv2.IMREAD_GRAYSCALE)
 cv2.namedWindow('image')
 
@@ -38,10 +38,10 @@ def is_pixel_column_white(x,T):
             return False
     return True
 
-# This is a automatic allign the heights of the characters
+# This is a automatic allign the heights of the alphabets
 # For example 'p' is written lower than 'a'
 # The alligning is done by padding with white pixels
-def final_vertical_allignment():
+def alphabet_vertical_allignment():
     
     alpha = storage_dict[0]
     
@@ -88,6 +88,36 @@ def final_vertical_allignment():
     storage_dict[0] = alpha
     save_obj(storage_dict,"storage_dict")
 
+def punctiation_vertical_allignment():
+    
+    punct = storage_dict[1]
+    
+    #define all the tall, short and average alphabets
+
+    average = [3,4,6,7,9,10,11,12,13,14,15]
+    
+    summ = 0
+    for ch in average:
+            summ += punct[ch].shape[0]
+    average_height = summ// len(average)
+
+    
+    # for all the alphabets do padding to make height same
+    for i in [1,2,5,8]:
+        padd = np.zeros([average_height - punct[i].shape[0] ,punct[i].shape[1]],dtype=np.uint8)
+        padd.fill(255)
+        punct[i] = cv2.vconcat([padd, punct[i],padd])
+    
+    for i in [0]:
+        padd = np.zeros([(average_height - punct[i].shape[0])//2 ,punct[i].shape[1]],dtype=np.uint8)
+        padd.fill(255)
+        punct[i] = cv2.vconcat([padd, punct[i], padd])
+        
+    # store the resulting images 
+    storage_dict[1] = punct
+    save_obj(storage_dict,"storage_dict")
+
+
 # This function crops the image of each character by removing extra white 
 # pixels on the border
 
@@ -98,7 +128,6 @@ def process_characters(x, i, T, img_crop):
     while  y_top<len(img_crop):
         if is_pixel_row_white(img_crop[y_top],T):
             y_top+=1
-            print("x")
         else:
             break
             
@@ -234,7 +263,9 @@ while(1):
 
 # If s is 1, it means we have to save the character sample    
 if s==1:
+    # apply segmentation with save set to True
     apply_segmentation(img,t, True)
-    print("hi")
-    final_vertical_allignment()
+    # align the saved character samples
+    alphabet_vertical_allignment()
+    punctiation_vertical_allignment()
     cv2.destroyAllWindows()
