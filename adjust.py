@@ -5,14 +5,16 @@ import pickle
 def nothing(x):
     pass
 
+# function to save the character images
 def save_obj(obj, name ):
     with open('obj/'+ name + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
+
+# read the sample file
 storage_dict = []
 fn = 'images/sample_nil.jpeg'
 imgray = cv2.imread(fn, cv2.IMREAD_GRAYSCALE)
-
 cv2.namedWindow('image')
 
 # create trackbars for threshold change
@@ -22,26 +24,33 @@ cv2.createTrackbar('T','image',0,255,nothing)
 switch = '0 : OFF \n1 : ON'
 cv2.createTrackbar(switch, 'image',0,1,nothing)
 
+# returns True if a entire x is above a threshold value T
 def is_pixel_row_white(x,T):
     for i in x:
         if i<T:
             return False
     return True
-   
+
+# returns True if a entire column x is above a threshold value T   
 def is_pixel_column_white(x,T):
     for i in x:
         if i[0]<T:
             return False
     return True
 
+# This is a automatic allign the heights of the characters
+# For example 'p' is written lower than 'a'
+# The alligning is done by padding with white pixels
 def final_vertical_allignment():
     
-    
     alpha = storage_dict[0]
+    
+    #define all the tall, short and average alphabets
     short = ['g','j','p','q','y']
     average = ['a','c','e','i','m','n','o','r','s','u','v','w','x','z']
     tall = ['b','d','f','h','k','l','t']
-    print("hi")
+    
+    # find tallest and shortest alphabet for reference
     tallest = -1
     for ch in tall:
         if(alpha[ord(ch)-97].shape[0] > tallest):
@@ -51,15 +60,18 @@ def final_vertical_allignment():
         if(alpha[ord(ch)-97].shape[0] > shortest):
             shortest = alpha[ord(ch)-97].shape[0]     
     
+    # find the avergae height of all the alphabets belonging to list average 
     summ = 0
     for ch in average:
             summ += alpha[ord(ch)-97].shape[0]
     average_height = summ// len(average)
 
-    
+    # find differences between averages and extremes
     diff_t = tallest - average_height
     diff_s = shortest - average_height
     
+    
+    # for all the alphabets do padding to make height same
     for i in range(26):
         ch = chr(i+97)
         if ch not in tall:
@@ -71,12 +83,17 @@ def final_vertical_allignment():
             padd = np.zeros([diff_s,alpha[i].shape[1]],dtype=np.uint8)
             padd.fill(255)
             alpha[i] = cv2.vconcat([alpha[i],padd])
+    
+    # store the resulting images 
     storage_dict[0] = alpha
     save_obj(storage_dict,"storage_dict")
-    
+
+# This function crops the image of each character by removing extra white 
+# pixels on the border
+
 def process_characters(x, i, T, img_crop):
     
-    # remove space from top and below 
+    # remove completely white rows from the top
     y_top = 0
     while  y_top<len(img_crop):
         if is_pixel_row_white(img_crop[y_top],T):
@@ -84,7 +101,8 @@ def process_characters(x, i, T, img_crop):
             print("x")
         else:
             break
-    
+            
+    # remove completely white rows from the bottom
     y_bottom = len(img_crop)-1
     while y_bottom >0:
         if is_pixel_row_white(img_crop[y_bottom],T):
@@ -92,11 +110,14 @@ def process_characters(x, i, T, img_crop):
         else:
             break  
           
-    #print(img_crop)
     img_crop = img_crop[y_top:y_bottom, 0:img_crop.shape[1]]
 
     return img_crop
 
+# This is the main segmentation function, that is the function that is used to 
+# classify the characters into alphabets, punctiation and numbers 
+# and segment them 
+    
 def apply_segmentation(img,T, save):
     
     global storage_dict
@@ -143,12 +164,8 @@ def apply_segmentation(img,T, save):
                 character_class_BR[count][0] = i   
                 active = True
     
-    # display boxes in image             
-    #for x in character_class_BR:
-    #    cv2.rectangle(img, pt1=(0,x[0]), pt2=(img.shape[1],x[1]),color=(0,255,255),thickness=2)    
-    #    cv2.putText(img,captions[character_class_BR.index(x)],(0,x[0]), font, 1,(0,255,255),2,cv2.LINE_AA)
-    
-    # iterate over all character classes to segment them separately
+    # iterate over all character classes to segment them separately into
+    # individual characters
     for x in range(len(character_class_BR)):
         
         # The total number of characters in class indexed x
@@ -182,27 +199,20 @@ def apply_segmentation(img,T, save):
                     active = True
         
         for i in range(len(ans)):
-            temp = ans[i]
-            #cv2.rectangle(img, pt1=(temp[0][1],temp[0][0]), pt2=(temp[1][1],temp[1][0]),color=(0,255,255),thickness=1)         
-            
+            temp = ans[i]            
             if save :           
-                
                 storage_dict[x][i]=  process_characters(x, i , T,img_backup[temp[0][0]:temp[1][0]+1,temp[0][1]:temp[1][1]+1])
-
-                while True:
-                    break
-                    #print(temp[0][1],temp[1][1]+1,temp[0][0],temp[1][0]+1)
-                    #cv2.imshow('image', img_backup[temp[0][0]:temp[1][0]+1, temp[0][1]:temp[1][1]+1])
-                    #cv2.imshow('image', storage_dict[x][i])
-                    #if cv2.waitKey(10) == 27:
-                    #    break
             else:
                 cv2.rectangle(img, pt1=(temp[0][1],temp[0][0]), pt2=(temp[1][1],temp[1][0]),color=(0,255,255),thickness=1)  
     if save:
         save_obj(storage_dict,"storage_dict")
         return
+        
     return img
 
+
+
+# The main loop for the opencv intercative window
 t = -1
 s = -1
 
@@ -221,7 +231,8 @@ while(1):
     k = cv2.waitKey(1) & 0xFF
     if k == 27:
         break
-        
+
+# If s is 1, it means we have to save the character sample    
 if s==1:
     apply_segmentation(img,t, True)
     print("hi")
