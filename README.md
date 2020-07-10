@@ -12,6 +12,10 @@ git clone https://github.com/ArchitWagle/auto-journal.git
 
 Firstly take a image of your handwriting sample and copy  the image to `images/` folder. 
 Name your sample file as `sample_r.jpeg`   
+format of sample image is  
+  
+![The sample](/images/sample_r.jpeg)
+
 
 #### Note: It is extremely important to follow the image sample format and take a clear photo without shadows.
 
